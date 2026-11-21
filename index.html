@@ -27,7 +27,7 @@
   <h1>PMT Task Hub</h1>
   <p id="msg">Opening the Task Hub ...</p>
   <div id="ntf" style="display:none"><a class="b" href="#" id="ntfOn">Turn on notifications</a><p><a href="#" id="ntfSkip" style="color:#5b6475">Not now</a></p></div>
-  <a class="b" href="https://tinyurl.com/pmt-task-hub">Open Task Hub</a>
+  <a class="b" id="openHub" href="https://tinyurl.com/pmt-task-hub">Open Task Hub</a>
   <p style="margin-top:22px;font-size:12.5px">To put it on your iPhone home screen: open this page in Safari, tap Share, then Add to Home Screen.</p>
 </div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -56,7 +56,7 @@
     getToken().then(go, function () { go(); });
   } else if (canPush && Notification.permission === 'default' && Date.now() - Number(ls('th_skip') || 0) > 7 * 864e5) {
     document.getElementById('msg').textContent = 'Get a phone notification for your tasks: a morning summary, late tasks and urgent downtime.';
-    document.querySelector('a.b').style.display = 'none';
+    document.getElementById('openHub').style.display = 'none';
     document.getElementById('ntf').style.display = 'block';
     document.getElementById('ntfOn').onclick = function (e) {
       e.preventDefault();
