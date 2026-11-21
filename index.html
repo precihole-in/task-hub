@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task Hub</title>
+<meta name="apple-mobile-web-app-title" content="Task Hub">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1F4E79">
+<style>
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:-apple-system,Segoe UI,Arial,sans-serif;background:#f3f6fa;color:#1f2d3d}
+  .c{text-align:center;padding:24px;max-width:340px}
+  img{width:96px;height:96px;border-radius:22px}
+  h1{font-size:20px;margin:14px 0 6px}
+  p{font-size:14px;color:#5b6475;line-height:1.45}
+  a.b{display:inline-block;margin-top:10px;background:#1F4E79;color:#fff;text-decoration:none;padding:11px 22px;border-radius:10px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="c">
+  <img src="apple-touch-icon.png" alt="">
+  <h1>PMT Task Hub</h1>
+  <p id="msg">Opening the Task Hub ...</p>
+  <a class="b" href="https://tinyurl.com/pmt-task-hub">Open Task Hub</a>
+  <p style="margin-top:22px;font-size:12.5px">To put it on your iPhone home screen: open this page in Safari, tap Share, then Add to Home Screen.</p>
+</div>
+<script>
+  // Opened from the home screen icon: go straight to the Hub.
+  // Opened in Safari: stay, so the person can tap Share > Add to Home Screen (or Open Task Hub).
+  var home = window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+  if (home) location.replace('https://tinyurl.com/pmt-task-hub');
+  else document.getElementById('msg').textContent = 'Tap Open Task Hub, or add this page to your home screen for a one-tap icon.';
+</script>
+</body>
+</html>
