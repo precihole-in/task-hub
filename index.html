@@ -10,6 +10,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="manifest" href="manifest.json">
+<script src="notify-config.js"></script>
 <meta name="theme-color" content="#1F4E79">
 <style>
   body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:-apple-system,Segoe UI,Arial,sans-serif;background:#f3f6fa;color:#1f2d3d}
@@ -25,15 +26,49 @@
   <img src="apple-touch-icon.png" alt="">
   <h1>PMT Task Hub</h1>
   <p id="msg">Opening the Task Hub ...</p>
+  <div id="ntf" style="display:none"><a class="b" href="#" id="ntfOn">Turn on notifications</a><p><a href="#" id="ntfSkip" style="color:#5b6475">Not now</a></p></div>
   <a class="b" href="https://tinyurl.com/pmt-task-hub">Open Task Hub</a>
   <p style="margin-top:22px;font-size:12.5px">To put it on your iPhone home screen: open this page in Safari, tap Share, then Add to Home Screen.</p>
 </div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 <script>
-  // Opened from the home screen icon: go straight to the Hub.
+  // Opened from the home screen icon: (once) offer notifications, then go to the Hub.
   // Opened in Safari: stay, so the person can tap Share > Add to Home Screen (or Open Task Hub).
+  var HUB = window.TH_HUB || 'https://tinyurl.com/pmt-task-hub';
   var home = window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
-  if (home) location.replace('https://tinyurl.com/pmt-task-hub');
-  else document.getElementById('msg').textContent = 'Tap Open Task Hub, or add this page to your home screen for a one-tap icon.';
+  var canPush = !!(window.TH_FIREBASE && window.TH_VAPID && 'serviceWorker' in navigator && 'Notification' in window && 'PushManager' in window);
+  function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  function go(token) {
+    var send = token && (token !== ls('th_tok') || Date.now() - Number(ls('th_sent') || 0) > 7 * 864e5);
+    if (send) { ls('th_tok', token); ls('th_sent', String(Date.now())); }
+    location.replace(HUB + (send ? '?fcm=' + encodeURIComponent(token) : ''));
+  }
+  function getToken() {
+    firebase.initializeApp(window.TH_FIREBASE);
+    return navigator.serviceWorker.register('firebase-messaging-sw.js').then(function (reg) {
+      return firebase.messaging().getToken({ vapidKey: window.TH_VAPID, serviceWorkerRegistration: reg });
+    });
+  }
+  if (!home) {
+    document.getElementById('msg').textContent = 'Tap Open Task Hub, or add this page to your home screen for a one-tap icon.';
+  } else if (canPush && Notification.permission === 'granted') {
+    getToken().then(go, function () { go(); });
+  } else if (canPush && Notification.permission === 'default' && Date.now() - Number(ls('th_skip') || 0) > 7 * 864e5) {
+    document.getElementById('msg').textContent = 'Get a phone notification for your tasks: a morning summary, late tasks and urgent downtime.';
+    document.querySelector('a.b').style.display = 'none';
+    document.getElementById('ntf').style.display = 'block';
+    document.getElementById('ntfOn').onclick = function (e) {
+      e.preventDefault();
+      Notification.requestPermission().then(function (p) {
+        if (p === 'granted') getToken().then(go, function () { go(); });
+        else go();
+      });
+    };
+    document.getElementById('ntfSkip').onclick = function (e) { e.preventDefault(); ls('th_skip', String(Date.now())); go(); };
+  } else {
+    go();
+  }
 </script>
 </body>
 </html>
