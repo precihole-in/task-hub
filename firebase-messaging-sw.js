@@ -8,5 +8,5 @@ if (self.TH_FIREBASE) {
 }
 self.addEventListener('notificationclick', function (e) {
   e.notification.close();
-  e.waitUntil(clients.openWindow('./'));
+  e.waitUntil(clients.openWindow('./?open=notifs'));
 });

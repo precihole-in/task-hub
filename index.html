@@ -42,7 +42,10 @@
   function go(token) {
     var send = token && (token !== ls('th_tok') || Date.now() - Number(ls('th_sent') || 0) > 7 * 864e5);
     if (send) { ls('th_tok', token); ls('th_sent', String(Date.now())); }
-    location.replace(HUB + (send ? '?fcm=' + encodeURIComponent(token) : ''));
+    var q = [];
+    if (send) q.push('fcm=' + encodeURIComponent(token));
+    if (/[?&]open=notifs/.test(location.search)) q.push('page=notifs'); // tapped a notification
+    location.replace(HUB + (q.length ? '?' + q.join('&') : ''));
   }
   function getToken() {
     if (!firebase.apps.length) firebase.initializeApp(window.TH_FIREBASE);
